@@ -1,0 +1,14 @@
+{
+  "name": "my-fullstack-app",
+  "version": "1.0.0",
+  "scripts": {
+    "devFr": "concurrently \"npm run server\" \"npm run fr\"",
+    "devAr": "concurrently \"npm run server\" \"npm run ar\"",
+    "server": "cd back && npm start",
+    "fr": "cd fr && npm run dev",
+    "ar": "cd ar && npm run dev"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

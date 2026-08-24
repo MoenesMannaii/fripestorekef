@@ -1,0 +1,44 @@
+{
+  "name": "pos",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --webpack",
+    "build": "next build --webpack",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "@emailjs/browser": "^4.4.1",
+    "@zxing/library": "^0.21.3",
+    "axios": "^1.13.1",
+    "date-fns": "^4.1.0",
+    "date-fns-tz": "^3.2.0",
+    "framer-motion": "^12.38.0",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.4",
+    "lucide-react": "^0.563.0",
+    "next": "16.0.10",
+    "papaparse": "^5.5.3",
+    "pdfmake": "^0.2.20",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "react-icons": "^5.5.0",
+    "react-select": "^5.10.2",
+    "react-webcam": "^7.2.0",
+    "recharts": "^3.8.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/html2canvas": "^0.5.35",
+    "@types/node": "^24.9.2",
+    "@types/react": "^19.2.2",
+    "@types/recharts": "^1.8.29",
+    "baseline-browser-mapping": "^2.10.9",
+    "eslint": "^9",
+    "eslint-config-next": "16.0.1",
+    "serve": "^14.2.5",
+    "tailwindcss": "^4",
+    "typescript": "^5.9.3"
+  }
+}

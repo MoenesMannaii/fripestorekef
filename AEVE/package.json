@@ -1,0 +1,10 @@
+{
+  "name": "aeve",
+  "devDependencies": {
+    "serve": "^14.2.5"
+  },
+  "scripts": {
+    "serve:fr": "serve fr/out -p 3000",
+    "start": "concurrently \"cd back && node index.js\" \"npm run serve:fr\""
+  }
+}
