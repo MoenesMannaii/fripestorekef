@@ -422,7 +422,7 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
                     disabled={!selectedItemForReturn || returnLoading}
                     className="px-8 py-4 bg-red-600 text-white font-bold hover:bg-red-700 disabled:bg-gray-400 text-sm "
                   >
-                    {returnLoading ? '...' : 'RETORN'}
+                    {returnLoading ? '...' : 'RETOUR'}
                   </button>
                </div>
             </div>

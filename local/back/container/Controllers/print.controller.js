@@ -2392,9 +2392,22 @@ const printReceipt = async (req, res) => {
 
     doc.end();
     await new Promise((resolve, reject) => { stream.on('finish', resolve); stream.on('error', reject); });
-    await print(outputPath, { paperSize: '80mm', copies: 1 });
-    await openDrawer();
-    res.json({ success: true, message: 'Receipt printed successfully' });
+    
+    // Open drawer first
+    try {
+      await openDrawer();
+    } catch (drawerErr) {
+      console.error("Drawer error:", drawerErr);
+    }
+
+    // Try to print, but don't fail the request if it fails
+    try {
+      await print(outputPath, { paperSize: '80mm', copies: 1 });
+    } catch (printErr) {
+      console.error("Print error (ignored):", printErr);
+    }
+    
+    res.json({ success: true, message: 'Receipt processed successfully' });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   } finally {

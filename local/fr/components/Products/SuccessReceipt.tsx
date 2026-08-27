@@ -77,7 +77,6 @@ export default function SuccessReceipt({
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          handleAutoPrint();
           return 0;
         }
         return prev - 1;
@@ -87,8 +86,15 @@ export default function SuccessReceipt({
     return () => clearInterval(timer);
   }, [hasPrinted]);
 
-  // 🖨️ REAL PRINT FUNCTION - WITH BETTER ERROR HANDLING
-  const handleAutoPrint = async () => {
+  // Trigger print when countdown reaches 0
+  useEffect(() => {
+    if (countdown === 0 && !hasPrinted && !printExecutedRef.current) {
+      handleAutoPrint();
+    }
+  }, [countdown, hasPrinted]);
+
+  // 🖨️ REAL PRINT FUNCTION - NON-BLOCKING
+  const handleAutoPrint = () => {
     if (hasPrinted || printExecutedRef.current) {
       console.log('🛑 Print already executed, skipping');
       return;
@@ -97,43 +103,35 @@ export default function SuccessReceipt({
     printExecutedRef.current = true;
     setIsPrinting(true);
     setHasPrinted(true);
-    setPrintError(null); // Clear previous print errors
+    setPrintError(null);
 
-    try {
-      console.log('🖨️ Sending print request...');
-      console.log('📦 Cart items:', cartItems);
-      console.log('💰 Order:', order);
+    console.log('🖨️ Sending non-blocking print request...');
 
-      const response = await fetch("http://localhost:4000/api/print", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          order: order || {},
-          cartItems: cartItems || []
-        }),
-      });
-
+    // Fire and forget fetch request
+    fetch("http://localhost:4000/api/print", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        order: order || {},
+        cartItems: cartItems || []
+      }),
+    })
+    .then(async (response) => {
       const result = await response.json();
-      console.log('📄 Print response:', result);
-
       if (!response.ok || !result.success) {
-        throw new Error(result.error || result.message || 'Print failed');
+        console.error("Print failed on server:", result.error || result.message);
+      } else {
+        console.log('✅ Print request successful');
       }
+    })
+    .catch(err => {
+      console.error("❌ Error sending print request:", err);
+    });
 
-      console.log('✅ Print request successful');
-
-      // Success - close immediately
-      onPrintTicket();
-
-    } catch (err) {
-      console.error("❌ Error printing receipt:", err);
-      const errorMessage = err instanceof Error ? err.message : 'Printing failed';
-      setPrintError(errorMessage);
-    } finally {
-      setIsPrinting(false);
-    }
+    // Success - close immediately without waiting for print
+    onPrintTicket();
   };
 
   const loadTemplate = async () => {

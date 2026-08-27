@@ -1,0 +1,17 @@
+# ─── Build outputs (too large for git) ──────────────────────────────────────
+dist/
+
+# ─── Generated at build time — recreated by BUILD.ps1 ───────────────────────
+frontend/
+backend/
+resources/node/
+
+# ─── Dependencies ────────────────────────────────────────────────────────────
+node_modules/
+
+# ─── Temp icon files ─────────────────────────────────────────────────────────
+assets/icon.png
+
+# ─── OS ──────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db

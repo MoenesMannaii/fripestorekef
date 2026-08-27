@@ -1,0 +1,69 @@
+{
+  "name": "fripestore-pos",
+  "version": "1.0.0",
+  "description": "FripeStore POS System",
+  "author": "FripeStore",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win"
+  },
+  "build": {
+    "appId": "com.fripestore.pos",
+    "productName": "FripeStore POS",
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "assets/icon.ico",
+      "signingHashAlgorithms": null,
+      "certificateFile": null,
+      "sign": null
+    },
+    "publish": null,
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "installerIcon": "assets/icon.ico",
+      "uninstallerIcon": "assets/icon.ico",
+      "installerHeaderIcon": "assets/icon.ico"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "splash.html",
+      "assets/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "backend",
+        "to": "backend",
+        "filter": [
+          "**/*",
+          "!**/.git"
+        ]
+      },
+      {
+        "from": "frontend/out",
+        "to": "frontend/out"
+      },
+      {
+        "from": "resources/node/node.exe",
+        "to": "node/node.exe"
+      }
+    ],
+    "asarUnpack": [
+      "**/*.node"
+    ]
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3"
+  }
+}

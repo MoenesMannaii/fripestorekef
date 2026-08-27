@@ -1,0 +1,59 @@
+# ─── Dependencies ────────────────────────────────────────────────────────────
+node_modules/
+
+# ─── Next.js ─────────────────────────────────────────────────────────────────
+local/fr/.next/
+local/fr/out/
+
+# ─── Electron Build Outputs ───────────────────────────────────────────────────
+electron-app/dist/
+electron-app/frontend/        # generated from local/fr/out — rebuild with BUILD.ps1
+electron-app/backend/         # copy of local/back — rebuild with BUILD.ps1
+electron-app/resources/node/  # downloaded node.exe (~30MB) — rebuild with BUILD.ps1
+
+# ─── Database ────────────────────────────────────────────────────────────────
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# ─── Uploads & Generated Files ───────────────────────────────────────────────
+local/back/uploads/products/*
+local/back/uploads/template/*
+local/back/pdfs/
+local/back/logs/
+!local/back/uploads/products/.gitkeep
+!local/back/uploads/template/.gitkeep
+
+# ─── Production Docker Folder ────────────────────────────────────────────────
+production/
+
+# ─── Environment & Secrets ───────────────────────────────────────────────────
+.env
+.env.local
+.env.production
+.env*.local
+
+# ─── Logs ────────────────────────────────────────────────────────────────────
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ─── OS Files ────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ─── IDE ─────────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# ─── Archives ────────────────────────────────────────────────────────────────
+*.zip
+*.tar.gz
+*.7z
