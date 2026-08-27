@@ -14,13 +14,18 @@ const uploadsPath = path.join(userDataPath, 'uploads');
 if (!fs.existsSync(dbDir)) fs.mkdirSync(dbDir, { recursive: true });
 if (!fs.existsSync(uploadsPath)) fs.mkdirSync(uploadsPath, { recursive: true });
 
-// In production, resources are unpacked to process.resourcesPath
-const resourcesPath = isDev ? __dirname : process.resourcesPath;
+// Support both extraResources and inside-app packaging
+const backendPath = fs.existsSync(path.join(process.resourcesPath, 'backend'))
+  ? path.join(process.resourcesPath, 'backend')
+  : path.join(__dirname, 'backend');
 
-const backendPath = path.join(resourcesPath, 'backend');
 const nodeBin = isDev
   ? 'node'  // use system node in dev
-  : path.join(resourcesPath, 'node', 'node.exe'); // bundled portable node in production
+  : (fs.existsSync(path.join(process.resourcesPath, 'node', 'node.exe'))
+      ? path.join(process.resourcesPath, 'node', 'node.exe')
+      : (fs.existsSync(path.join(process.resourcesPath, 'node.exe'))
+          ? path.join(process.resourcesPath, 'node.exe')
+          : 'node'));
 
 const BACKEND_PORT = 4000;
 

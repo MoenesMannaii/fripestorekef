@@ -186,8 +186,11 @@ fripestorekef/
 
 | Problem | Solution |
 |---|---|
+| `Cannot find module '@so-ric/colorspace'` (or other missing module) | Incomplete or interrupted `node_modules` install. Open terminal in the backend folder (`resources\app\backend` or `electron-app\backend`) and run `npm install`, or run `BUILD.ps1` from root to rebuild cleanly. |
+| Shows `{"message":"Offline POS Backend"}` instead of UI | The backend could not locate the compiled static frontend files (`frontend/out`). Rebuild with `BUILD.ps1` or copy `frontend/out` into the app's `resources\app\frontend\out` directory. |
 | App opens but shows blank page | Wait 5-10 seconds for backend to start, then refresh |
 | Cash drawer does not open | Check USB/COM port connection — works natively on Windows |
 | Printer not found | App continues without printer — cash drawer still works |
 | Database lost after reinstall | Data is in `AppData\Roaming\FripeStore POS\` — backup that folder |
 | Build fails with Visual Studio error | Use `BUILD.ps1` — it uses system Node.js, no VS needed |
+
