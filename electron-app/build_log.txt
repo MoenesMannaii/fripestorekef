@@ -1,0 +1,53 @@
+﻿  ÔÇó electron-builder  version=24.13.3 os=10.0.26200
+  ÔÇó loaded configuration  file=package.json ("build" field)
+  ÔÇó packaging       platform=win32 arch=x64 electron=31.7.7 appOutDir=dist\win-unpacked
+  Ô¿» EOF
+github.com/develar/go-fs-util.CloseAndCheckError
+	/Volumes/data/go/pkg/mod/github.com/develar/go-fs-util@v0.0.0-20190620175131-69a2d4542206/fs.go:117
+github.com/develar/app-builder/pkg/fs.ReadFile
+	/Volumes/data/Documents/app-builder/pkg/fs/file.go:40
+github.com/develar/app-builder/pkg/icons.validateImageSize
+	/Volumes/data/Documents/app-builder/pkg/icons/icon-converter.go:122
+github.com/develar/app-builder/pkg/icons.doConvertIcon
+	/Volumes/data/Documents/app-builder/pkg/icons/icon-converter.go:180
+github.com/develar/app-builder/pkg/icons.ConvertIcon
+	/Volumes/data/Documents/app-builder/pkg/icons/icon-converter.go:56
+github.com/develar/app-builder/pkg/icons.ConfigureCommand.func1
+	/Volumes/data/Documents/app-builder/pkg/icons/icon-converter.go:33
+github.com/alecthomas/kingpin.(*actionMixin).applyActions
+	/Volumes/data/go/pkg/mod/github.com/alecthomas/kingpin@v2.2.6+incompatible/actions.go:28
+github.com/alecthomas/kingpin.(*Application).applyActions
+	/Volumes/data/go/pkg/mod/github.com/alecthomas/kingpin@v2.2.6+incompatible/app.go:557
+github.com/alecthomas/kingpin.(*Application).execute
+	/Volumes/data/go/pkg/mod/github.com/alecthomas/kingpin@v2.2.6+incompatible/app.go:390
+github.com/alecthomas/kingpin.(*Application).Parse
+	/Volumes/data/go/pkg/mod/github.com/alecthomas/kingpin@v2.2.6+incompatible/app.go:222
+main.main
+	/Volumes/data/Documents/app-builder/main.go:90
+runtime.main
+	/usr/local/Cellar/go/1.17/libexec/src/runtime/proc.go:255
+runtime.goexit
+	/usr/local/Cellar/go/1.17/libexec/src/runtime/asm_amd64.s:1581  
+  Ô¿» C:\Users\User\Desktop\fripestorekef\electron-app\node_modules\app-builder-bin\win\x64\app-builder.exe process failed ERR_ELECTRON_BUILDER_CANNOT_EXECUTE
+Exit code:
+1  failedTask=build stackTrace=Error: C:\Users\User\Desktop\fripestorekef\electron-app\node_modules\app-builder-bin\win\x64\app-builder.exe process failed ERR_ELECTRON_BUILDER_CANNOT_EXECUTE
+Exit code:
+1
+    at ChildProcess.<anonymous> (C:\Users\User\Desktop\fripestorekef\electron-app\node_modules\builder-util\src\util.ts:252:14)
+    at Object.onceWrapper (node:events:639:26)
+    at ChildProcess.emit (node:events:524:28)
+    at ChildProcess.cp.emit (C:\Users\User\Desktop\fripestorekef\electron-app\node_modules\cross-spawn\lib\enoent.js:34:29)
+    at maybeClose (node:internal/child_process:1101:16)
+    at Process.ChildProcess._handle.onexit (node:internal/child_process:304:5)
+From previous event:
+    at processImmediate (node:internal/timers:491:21)
+From previous event:
+    at WinPackager.signApp (C:\Users\User\Desktop\fripestorekef\electron-app\node_modules\app-builder-lib\src\winPackager.ts:384:27)
+    at WinPackager.doSignAfterPack (C:\Users\User\Desktop\fripestorekef\electron-app\node_modules\app-builder-lib\src\platformPackager.ts:336:32)
+    at WinPackager.doPack (C:\Users\User\Desktop\fripestorekef\electron-app\node_modules\app-builder-lib\src\platformPackager.ts:321:7)
+    at WinPackager.pack (C:\Users\User\Desktop\fripestorekef\electron-app\node_modules\app-builder-lib\src\platformPackager.ts:140:5)
+    at Packager.doBuild (C:\Users\User\Desktop\fripestorekef\electron-app\node_modules\app-builder-lib\src\packager.ts:445:9)
+    at executeFinally (C:\Users\User\Desktop\fripestorekef\electron-app\node_modules\builder-util\src\promise.ts:12:14)
+    at Packager._build (C:\Users\User\Desktop\fripestorekef\electron-app\node_modules\app-builder-lib\src\packager.ts:379:31)
+    at Packager.build (C:\Users\User\Desktop\fripestorekef\electron-app\node_modules\app-builder-lib\src\packager.ts:340:12)
+    at executeFinally (C:\Users\User\Desktop\fripestorekef\electron-app\node_modules\builder-util\src\promise.ts:12:14)

@@ -36,8 +36,15 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json({ limit: '100mb' }));
 app.use(bodyParser.urlencoded({ limit: '100mb', extended: true }));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(process.env.UPLOADS_PATH || path.join(__dirname, 'uploads')));
 app.use('/pdfs', express.static(path.join(__dirname, 'pdfs')));
+
+// ─── Serve bundled Next.js frontend in Electron mode ────────────────────────
+if (process.env.ELECTRON_APP === '1') {
+  // In packaged app, frontend/out lives at <resourcesPath>/frontend/out
+  const frontendPath = path.join(process.env.RESOURCES_PATH || path.join(__dirname, '..', 'frontend'), 'frontend', 'out');
+  app.use(express.static(frontendPath));
+}
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', usersRoutes);
@@ -62,7 +69,19 @@ app.use('/api/print', printMultiRoutes);
 app.use('/api/clients', clientsRoutes);
 app.use('/api/suppliers', suppliersRoutes);
 app.use('/api/promotions', promotionsRoutes);
-app.get('/', (req, res) => res.json({ message: 'Offline POS Backend' }));
+// Root: serve frontend in Electron mode, health-check otherwise
+if (process.env.ELECTRON_APP === '1') {
+  const frontendPath = path.join(process.env.RESOURCES_PATH || path.join(__dirname, '..', 'frontend'), 'frontend', 'out');
+  // Catch-all: serve index.html for any unknown route (Next.js static export)
+  app.get('*', (req, res) => {
+    const indexPath = path.join(frontendPath, 'index.html');
+    res.sendFile(indexPath, err => {
+      if (err) res.status(404).send('Not found');
+    });
+  });
+} else {
+  app.get('/', (req, res) => res.json({ message: 'Offline POS Backend' }));
+}
 
 app.use(errorHandler);
 

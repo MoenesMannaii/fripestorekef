@@ -1,9 +1,9 @@
 Write-Host "============================================" -ForegroundColor Cyan
-Write-Host "  FripeStore POS - Electron Build Script   " -ForegroundColor Cyan
+Write-Host "  AEVE - Logiciel Point de vente Intelligent " -ForegroundColor Cyan
 Write-Host "============================================" -ForegroundColor Cyan
 
 $ErrorActionPreference = "Stop"
-$root = "C:\Users\7ALAZOUN\Desktop\fripestorekef"
+$root = "C:\Users\User\Desktop\fripestorekef"
 $eApp = "$root\electron-app"
 $frDir = "$root\local\fr"
 
@@ -22,8 +22,16 @@ if ($frontendBuilt) {
     Write-Host "[1/4] Frontend done." -ForegroundColor Green
 }
 
-# STEP 2: Backend dependencies (system Node.js, no ABI issues)
-Write-Host "`n[2/4] Installing backend dependencies..." -ForegroundColor Yellow
+# STEP 2: Backend files & dependencies (system Node.js, no ABI issues)
+Write-Host "`n[2/4] Setting up backend files..." -ForegroundColor Yellow
+$backDir = "$root\local\back"
+if (Test-Path "$eApp\backend") { Remove-Item -Recurse -Force "$eApp\backend" }
+New-Item -ItemType Directory -Force "$eApp\backend" | Out-Null
+Get-ChildItem -Path $backDir -Exclude node_modules, logs, database, uploads, .env, package-lock.json, *.pdf, *.png, check_*.js, count_*.js, debug_*.js, deviceInfo.js, generate.js, migrate_*.js, restore_*.js | ForEach-Object {
+    Copy-Item -Path $_.FullName -Destination "$eApp\backend" -Recurse -Force
+}
+
+Write-Host "Installing backend dependencies..." -ForegroundColor Yellow
 Set-Location "$eApp\backend"
 npm install --production
 if ($LASTEXITCODE -ne 0) { throw "Backend npm install failed!" }

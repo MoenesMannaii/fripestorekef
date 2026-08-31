@@ -1,26 +1,25 @@
-# FripeStore POS — Electron App
+# AEVE — Logiciel Point de Vente Intelligent
 
 > A fully offline Point of Sale system built with Next.js + Express, packaged as a Windows desktop app.
 
 ---
 
-## 📦 Where is the `.exe`?
+## 📦 Where is the build output?
 
-After running the build, the deliverable files are here:
+After running the build, look inside:
 
 ```
 electron-app/
 └── dist/
-    ├── FripeStore-POS-v1.0.0.zip        ← Send this to your client
-    └── FripeStore POS-win32-x64/
-        └── FripeStore POS.exe            ← The app launcher
+    ├── FripeStore POS Setup 1.0.0.exe   ← Installer — send this to client
+    └── win-unpacked/
+        └── FripeStore POS.exe            ← Portable launcher (no install needed)
 ```
 
 **To give the app to a client:**
-1. Copy `FripeStore-POS-v1.0.0.zip` to a USB drive or send it
-2. On the client PC: extract the zip anywhere (e.g. `C:\FripeStore\`)
-3. Double-click `FripeStore POS.exe`
-4. Done — no installation, no browser, no Node.js needed
+1. Copy `FripeStore POS Setup 1.0.0.exe` to a USB drive and run it on the client PC, **or**
+2. Zip the entire `win-unpacked/` folder, extract it anywhere (e.g. `C:\FripeStore\`), and double-click `FripeStore POS.exe`
+3. Done — no browser, no Node.js installation required
 
 ---
 
@@ -40,7 +39,7 @@ electron-app/
 
 ---
 
-## 🔧 What if I want to make changes to the app?
+## 🔧 Making changes and rebuilding
 
 The source code lives in:
 ```
@@ -53,70 +52,22 @@ fripestorekef/
 
 ### Step-by-step to update and rebuild:
 
-**1. Make your code changes** in `local/fr/` (frontend) or `local/back/` (backend)
+**1. Make your code changes** in `local/fr/` (frontend) or `local/back/` (backend).
 
-**2. Rebuild the app** — run this from the root folder:
+**2. Rebuild the app** — open PowerShell in the project root and run:
 ```powershell
-# Open PowerShell in: C:\Users\7ALAZOUN\Desktop\fripestorekef\
 powershell -ExecutionPolicy Bypass -File BUILD.ps1
 ```
 
-**3. The new `.exe` will be in** `electron-app/dist/FripeStore POS-win32-x64/`
+**3. The new installer and package** will appear in `electron-app/dist/`.
 
-### If you only changed the frontend:
-Delete `electron-app/frontend/out/` so the build script rebuilds it, then run `BUILD.ps1`.
-
-### If you only changed the backend:
-Copy the changed files into `electron-app/backend/` and re-run the packager step.
+> [!NOTE]
+> - **Frontend changes**: `BUILD.ps1` skips recompiling the frontend if `electron-app/frontend/out/index.html` already exists. **Delete `electron-app/frontend/`** before running the script if you changed any frontend code.
+> - **Backend changes**: `BUILD.ps1` automatically copies `local/back/` into `electron-app/backend/` on every build. No manual syncing needed.
 
 ---
 
-## 🏗️ How to start a NEW POS project (Restaurant, Store, etc.)
-
-You can reuse this entire setup as a base for a new business. Here's how:
-
-### Option A — Quick Clone (same tech, new data)
-1. Copy the entire `fripestorekef/` folder
-2. Rename it (e.g. `restoproject/`)
-3. Change the app name in `electron-app/package.json`:
-   ```json
-   {
-     "name": "my-resto-pos",
-     "version": "1.0.0",
-     "author": "Your Name",
-     "build": {
-       "appId": "com.yourname.restopos",
-       "productName": "Resto POS"
-     }
-   }
-   ```
-4. Change the splash screen title in `electron-app/splash.html`
-5. Replace `electron-app/assets/icon.ico` with your new icon
-6. Modify the frontend pages and backend controllers for your new business
-7. Run `BUILD.ps1` to get a new `.exe`
-
-### Option B — Full Reset (fresh database + new UI)
-1. Follow Option A above
-2. Edit the database schema in:
-   `electron-app/backend/container/database/init.js`
-3. The database will auto-create fresh on first launch
-4. Reset the default admin password in `init.js` (line ~147):
-   ```js
-   bcrypt.hashSync('YourNewPassword', 10)
-   ```
-
-### Typical customizations per business type:
-
-| Business | Changes needed |
-|---|---|
-| **Restaurant** | Add table/menu management pages, kitchen display |
-| **Clothing Store** | Add size/color variants, fitting room tracking |
-| **Pharmacy** | Add expiry dates, prescription tracking |
-| **Cafe** | Simplify UI, add quick-order buttons |
-
----
-
-## 🏃 How to run in development (without building)
+## 🏃 Development mode (without building)
 
 ```powershell
 # Terminal 1 — Start the backend
@@ -132,8 +83,8 @@ npm run dev
 # Open browser at http://localhost:3000
 ```
 
-> In dev mode the app runs in a browser window, not Electron.
-> Use this for fast development — changes reflect instantly without rebuilding.
+> In dev mode the app runs in a browser tab, not Electron.
+> Use this for fast iteration — hot-reload, no rebuild required.
 
 ---
 
@@ -159,13 +110,36 @@ fripestorekef/
 ├── electron-app/              ← Electron Wrapper
 │   ├── main.js                ← Electron entry (spawns backend, opens window)
 │   ├── splash.html            ← Loading screen
-│   ├── backend/               ← Copy of back/ (used in packaged app)
-│   ├── frontend/out/          ← Built Next.js static files
+│   ├── backend/               ← Auto-generated copy of back/ (do not edit directly)
+│   ├── frontend/out/          ← Auto-generated built Next.js static files
 │   ├── resources/node/        ← Bundled node.exe (for client machines)
-│   └── dist/                  ← Build output → your deliverable .exe
+│   └── dist/                  ← Build output → deliverable installer + app
 │
 └── BUILD.ps1                  ← One-click build script
 ```
+
+---
+
+## 🏗️ Starting a NEW POS project
+
+Reuse this as a base for a new business:
+
+1. Copy the entire `fripestorekef/` folder and rename it (e.g. `restoproject/`)
+2. In `electron-app/package.json`, update:
+   ```json
+   {
+     "name": "my-resto-pos",
+     "build": {
+       "appId": "com.yourname.restopos",
+       "productName": "Resto POS"
+     }
+   }
+   ```
+3. Update the splash screen title in `electron-app/splash.html`
+4. Replace `electron-app/aeve_logo.png` with your logo (used to auto-generate the icon)
+5. Edit the database schema in `local/back/container/database/init.js`
+6. Modify the frontend pages and backend controllers for your business
+7. Run `BUILD.ps1` to get a new packaged `.exe`
 
 ---
 
@@ -177,8 +151,8 @@ fripestorekef/
 | Password | `admin2K26` |
 | PIN | `0000` |
 
-> Change these before delivering to a client!
-> Edit: `electron-app/backend/container/database/init.js`
+> **Change these before delivering to a client!**
+> Edit: `local/back/container/database/init.js`
 
 ---
 
@@ -186,11 +160,11 @@ fripestorekef/
 
 | Problem | Solution |
 |---|---|
-| `Cannot find module '@so-ric/colorspace'` (or other missing module) | Incomplete or interrupted `node_modules` install. Open terminal in the backend folder (`resources\app\backend` or `electron-app\backend`) and run `npm install`, or run `BUILD.ps1` from root to rebuild cleanly. |
-| Shows `{"message":"Offline POS Backend"}` instead of UI | The backend could not locate the compiled static frontend files (`frontend/out`). Rebuild with `BUILD.ps1` or copy `frontend/out` into the app's `resources\app\frontend\out` directory. |
-| App opens but shows blank page | Wait 5-10 seconds for backend to start, then refresh |
+| Opens but shows the UI correctly on first use but not after | Wait 5–10 seconds for the backend to start, then the window reloads automatically |
+| App opens but shows blank white page | Close and reopen — the backend may need a few seconds on first launch |
+| Shows `{"message":"Offline POS Backend"}` | Frontend static files are missing. Run `BUILD.ps1` from scratch (delete `electron-app/frontend/` first) |
+| `Cannot find module '...'` error at startup | Incomplete install. Re-run `BUILD.ps1` to reinstall backend dependencies cleanly |
 | Cash drawer does not open | Check USB/COM port connection — works natively on Windows |
 | Printer not found | App continues without printer — cash drawer still works |
-| Database lost after reinstall | Data is in `AppData\Roaming\FripeStore POS\` — backup that folder |
-| Build fails with Visual Studio error | Use `BUILD.ps1` — it uses system Node.js, no VS needed |
-
+| Database lost after reinstall | Data is in `AppData\Roaming\FripeStore POS\` — back up that folder before reinstalling |
+| Build fails with icon error | The `electron-app/aeve_logo.png` may be missing or corrupt. Ensure it is a valid PNG |
