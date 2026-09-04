@@ -3,128 +3,390 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FripeStore POS</title>
+  <title>AEVE - Logiciel Point de vente Intelligent</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap');
 
-    body {
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: transparent;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    /* Main Window Frame - Clean Light Mode */
+    .splash-card {
+      width: 100%;
+      height: 100%;
+      background: #ffffff;
+      border-radius: 0px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.8);
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      font-family: 'Segoe UI', sans-serif;
-      color: white;
+      justify-content: space-between;
+      padding: 34px 40px 24px;
+      position: relative;
       overflow: hidden;
     }
 
-    .logo-ring {
-      width: 90px;
-      height: 90px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #e94560, #0f3460);
+    /* Soft Ambient Light Effects for Light Mode */
+    .ambient-light-1 {
+      position: absolute;
+      top: -35%;
+      left: -20%;
+      width: 340px;
+      height: 340px;
+      background: radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, rgba(59, 130, 246, 0) 70%);
+      filter: blur(40px);
+      pointer-events: none;
+      animation: floatLight1 8s ease-in-out infinite alternate;
+    }
+
+    .ambient-light-2 {
+      position: absolute;
+      bottom: -30%;
+      right: -15%;
+      width: 320px;
+      height: 320px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.07) 0%, rgba(99, 102, 241, 0) 70%);
+      filter: blur(40px);
+      pointer-events: none;
+      animation: floatLight2 7s ease-in-out infinite alternate;
+    }
+
+    .bg-grid {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(15, 23, 42, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15, 23, 42, 0.03) 1px, transparent 1px);
+      background-size: 24px 24px;
+      pointer-events: none;
+      opacity: 0.8;
+    }
+
+    @keyframes floatLight1 {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(30px, 20px) scale(1.1); }
+    }
+
+    @keyframes floatLight2 {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(-25px, -15px) scale(1.08); }
+    }
+
+    /* Top Brand Bar */
+    .brand-header {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      z-index: 10;
+    }
+
+    .logo-container {
+      position: relative;
+      width: 80px;
+      height: 80px;
+      flex-shrink: 0;
+    }
+
+    .logo-glow {
+      position: absolute;
+      inset: -4px;
+      background: linear-gradient(135deg, #2563eb, #6366f1);
+      border-radius: 55px;
+      opacity: 0.25;
+      filter: blur(8px);
+      animation: pulseGlow 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes pulseGlow {
+      0% { opacity: 0.15; transform: scale(0.96); }
+      100% { opacity: 0.35; transform: scale(1.04); }
+    }
+
+    .logo-card {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: #ffffff;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 50px;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 24px;
-      box-shadow: 0 0 40px rgba(233, 69, 96, 0.5);
-      animation: pulse 2s ease-in-out infinite;
+      padding: 10px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
     }
 
-    .logo-ring svg {
-      width: 48px;
-      height: 48px;
-      fill: white;
+    .logo-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
     }
 
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); box-shadow: 0 0 40px rgba(233, 69, 96, 0.5); }
-      50% { transform: scale(1.05); box-shadow: 0 0 60px rgba(233, 69, 96, 0.8); }
+    .brand-titles {
+      display: flex;
+      flex-direction: column;
     }
 
-    h1 {
+    .brand-name-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-title {
       font-size: 28px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-transform: uppercase;
+      line-height: 1;
+    }
+
+    .pro-pill {
+      padding: 5px 8px;
+      background: rgba(37, 99, 235, 0.08);
+      border: 1px solid rgba(37, 99, 235, 0.25);
+      border-radius: 6px;
+      color: #2563eb;
+      font-size: 10px;
       font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .brand-subtitle {
+      font-size: 11px;
+      font-weight: 600;
+      color: #64748b;
       letter-spacing: 2px;
       text-transform: uppercase;
-      margin-bottom: 6px;
+      margin-top: 6px;
     }
 
-    .subtitle {
+    /* Middle Progress Area */
+    .loading-body {
+      width: 100%;
+      z-index: 10;
+      margin-top: 10px;
+    }
+
+    .progress-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #1e293b;
       font-size: 12px;
-      color: rgba(255,255,255,0.5);
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      margin-bottom: 36px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
     }
 
-    .loader-bar {
-      width: 240px;
-      height: 3px;
-      background: rgba(255,255,255,0.1);
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      background-color: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #10b981;
+      animation: dotPulse 1.2s infinite alternate;
+    }
+
+    @keyframes dotPulse {
+      0% { opacity: 0.4; transform: scale(0.8); }
+      100% { opacity: 1; transform: scale(1.2); }
+    }
+
+    .percentage-text {
+      font-size: 13px;
+      font-weight: 700;
+      color: #2563eb;
+      font-mono: monospace;
+      letter-spacing: 0.5px;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 5px;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
       border-radius: 10px;
       overflow: hidden;
-      margin-bottom: 16px;
+      position: relative;
     }
 
-    .loader-fill {
+    .progress-fill {
       height: 100%;
       width: 0%;
-      background: linear-gradient(90deg, #e94560, #0f3460);
+      background: linear-gradient(90deg, #2563eb 0%, #3b82f6 50%, #60a5fa 100%);
       border-radius: 10px;
-      animation: load 5s ease-in-out forwards;
+      position: relative;
+      box-shadow: 0 0 10px rgba(37, 99, 235, 0.4);
+      transition: width 0.3s ease-out;
     }
 
-    @keyframes load {
-      0% { width: 0%; }
-      40% { width: 60%; }
-      80% { width: 85%; }
-      100% { width: 100%; }
-    }
-
-    .status {
-      font-size: 11px;
-      color: rgba(255,255,255,0.4);
-      letter-spacing: 1px;
-    }
-
-    .version {
+    .progress-fill::after {
+      content: '';
       position: absolute;
-      bottom: 16px;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.7), transparent);
+      animation: laserPass 1.4s infinite;
+    }
+
+    @keyframes laserPass {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    /* Bottom System Information Footer */
+    .system-footer {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 10;
+      padding-top: 14px;
+      border-top: 1px solid #f1f5f9;
+    }
+
+    .foot-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
       font-size: 10px;
-      color: rgba(255,255,255,0.2);
-      letter-spacing: 1px;
+      font-weight: 600;
+      color: #475569;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .foot-chip svg {
+      color: #10b981;
+    }
+
+    .copy-text {
+      font-size: 10.5px;
+      color: #64748b;
+      font-weight: 500;
+      letter-spacing: 0.5px;
     }
   </style>
 </head>
 <body>
-  <div class="logo-ring">
-    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-      <path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/>
-    </svg>
+  <div class="splash-card">
+    <div class="ambient-light-1"></div>
+    <div class="ambient-light-2"></div>
+    <div class="bg-grid"></div>
+
+    <!-- Header / Brand -->
+    <div class="brand-header">
+      <div class="logo-container">
+        <div class="logo-glow"></div>
+        <div class="logo-card">
+          <img src="aeve_logo.png" alt="AEVE Logo" onerror="this.onerror=null; this.src='../local/fr/assets/aeve_logo.png';" />
+        </div>
+      </div>
+      <div class="brand-titles">
+        <div class="brand-name-row">
+          <h1 class="brand-title">AEVE</h1>
+          <span class="pro-pill">POS PRO</span>
+        </div>
+        <p class="brand-subtitle">Logiciel Point de Vente Intelligent</p>
+      </div>
+    </div>
+
+    <!-- Progress Body -->
+    <div class="loading-body">
+      <div class="progress-meta">
+        <div class="status-badge">
+          <span class="pulse-dot"></span>
+          <span id="status">Initialisation du système...</span>
+        </div>
+        <div class="percentage-text" id="percent">0%</div>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="fill"></div>
+      </div>
+    </div>
+
+    <!-- System Footer -->
+    <div class="system-footer">
+      <div class="foot-chip">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        <span>Licence Authentifiée</span>
+      </div>
+      <div class="copy-text">
+        v1.0.0 • Groupe Dev AEVE
+      </div>
+    </div>
   </div>
-  <h1>FripeStore</h1>
-  <p class="subtitle">Point de Vente</p>
-  <div class="loader-bar">
-    <div class="loader-fill"></div>
-  </div>
-  <p class="status" id="status">Démarrage du système...</p>
-  <p class="version">v1.0.0</p>
 
   <script>
-    const messages = [
-      'Démarrage du système...',
-      'Initialisation de la base de données...',
-      'Chargement des produits...',
-      'Presque prêt...'
+    const steps = [
+      { text: "Initialisation du moteur AEVE...", pct: 15 },
+      { text: "Chargement de la base de données locale...", pct: 40 },
+      { text: "Vérification des licences & matériel...", pct: 68 },
+      { text: "Chargement du catalogue & des caisses...", pct: 88 },
+      { text: "Presque prêt...", pct: 100 }
     ];
-    let i = 0;
+
+    let currentStep = 0;
     const statusEl = document.getElementById('status');
-    setInterval(() => {
-      i = (i + 1) % messages.length;
-      statusEl.textContent = messages[i];
-    }, 1200);
+    const percentEl = document.getElementById('percent');
+    const fillEl = document.getElementById('fill');
+
+    let currentPct = 0;
+
+    function updateProgress() {
+      if (currentStep < steps.length) {
+        const target = steps[currentStep].pct;
+        statusEl.textContent = steps[currentStep].text;
+
+        const interval = setInterval(() => {
+          if (currentPct < target) {
+            currentPct += 1;
+            percentEl.textContent = currentPct + '%';
+            fillEl.style.width = currentPct + '%';
+          } else {
+            clearInterval(interval);
+            currentStep++;
+            if (currentStep < steps.length) {
+              setTimeout(updateProgress, 900);
+            }
+          }
+        }, 30);
+      }
+    }
+
+    setTimeout(updateProgress, 200);
   </script>
 </body>
 </html>

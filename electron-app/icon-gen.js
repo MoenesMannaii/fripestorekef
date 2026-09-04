@@ -2,7 +2,10 @@
 const path = require('path');
 const fs = require('fs');
 
-const src = 'C:\\Users\\7ALAZOUN\\.gemini\\antigravity-ide\\brain\\fb073954-ddb8-4bdd-a8aa-0da487b220cb\\fripestore_icon_1787841155977.jpg';
+const pngToIco = require('png-to-ico');
+
+// Use the local logo file in the electron-app folder
+const src = path.join(__dirname, 'aeve_logo.png');
 const assetsDir = path.join(__dirname, 'assets');
 const destPng = path.join(assetsDir, 'icon.png');
 const destIco = path.join(assetsDir, 'icon.ico');
@@ -11,15 +14,16 @@ if (!fs.existsSync(assetsDir)) fs.mkdirSync(assetsDir, { recursive: true });
 
 try {
   const sharp = require('./backend/node_modules/sharp');
-  sharp(src).resize(256, 256).toFile(destPng).then(() => {
-    fs.copyFileSync(destPng, destIco);
-    console.log('Icon created successfully.');
+  sharp(src).resize(256, 256).png().toBuffer().then(async buf => {
+    fs.writeFileSync(destPng, buf);
+    const icoBuf = await pngToIco(destPng);
+    fs.writeFileSync(destIco, icoBuf);
+    console.log('Icon created successfully, size:', fs.statSync(destIco).size);
   }).catch(e => {
-    console.warn('Sharp error, using placeholder:', e.message);
-    fs.writeFileSync(destIco, Buffer.alloc(0));
+    console.error('Sharp error:', e.message);
+    process.exit(1);
   });
 } catch(e) {
-  console.warn('Sharp not available, using placeholder:', e.message);
-  if (!fs.existsSync(assetsDir)) fs.mkdirSync(assetsDir);
-  fs.writeFileSync(destIco, Buffer.alloc(0));
+  console.error('Sharp not available:', e.message);
+  process.exit(1);
 }

@@ -7,6 +7,7 @@ const fs = require('fs');
 const {
   getCurrentTemplate,
   saveCurrentTemplate,
+  getDeletionCodes
 } = require('../Controllers/template.controller');
 const authenticate = require('../middlewares/auth.middleware');
 const { requireRole } = require('../middlewares/role.middleware');
@@ -47,6 +48,7 @@ const upload = multer({
 
 // Routes accessible to all authenticated users
 router.get('/current', getCurrentTemplate);
+router.get('/deletion-codes', getDeletionCodes);
 
 // Admin-only routes
 router.use(requireRole('admin'));

@@ -10,6 +10,7 @@ const {
 } = require('../Controllers/template.controller');
 const authenticate = require('../middlewares/auth.middleware');
 const { requireRole } = require('../middlewares/role.middleware');
+const { DELETION_SECRET_CODE, DELETION_BARCODES } = require('../config/secrets');
 
 // Protect all routes
 router.use(authenticate);
@@ -26,7 +27,6 @@ const storage = multer.diskStorage({
     cb(null, templateUploadDir);
   },
   filename: (req, file, cb) => {
-    // Generate unique filename with original extension
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
     const fileExtension = path.extname(file.originalname);
     cb(null, 'logo-' + uniqueSuffix + fileExtension);
@@ -47,6 +47,14 @@ const upload = multer({
 
 // Routes accessible to all authenticated users
 router.get('/current', getCurrentTemplate);
+
+// 🔐 Hardcoded deletion codes — never stored in DB
+router.get('/deletion-codes', (req, res) => {
+  res.json({
+    deletion_secret_code: DELETION_SECRET_CODE,
+    deletion_barcodes: DELETION_BARCODES.filter(Boolean), // strip empty slots
+  });
+});
 
 // Admin-only routes
 router.use(requireRole('admin'));

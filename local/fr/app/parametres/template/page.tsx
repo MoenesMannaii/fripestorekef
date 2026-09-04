@@ -33,8 +33,17 @@ interface TemplateData {
   ticket_reset_period: 'none' | 'weekly' | 'monthly';
   logo_path?: string;
   logo_url?: string;
-  deletion_secret_code: string;
-  deletion_barcode: string;
+  deletion_secret_code?: string;
+  deletion_barcode_1?: string;
+  deletion_barcode_2?: string;
+  deletion_barcode_3?: string;
+  deletion_barcode_4?: string;
+  deletion_barcode_5?: string;
+  deletion_barcode_6?: string;
+  deletion_barcode_7?: string;
+  deletion_barcode_8?: string;
+  deletion_barcode_9?: string;
+  deletion_barcode_10?: string;
 }
 
 export default function ReceiptTemplateEditor() {
@@ -56,8 +65,7 @@ export default function ReceiptTemplateEditor() {
   const [loyaltyMinPoints, setLoyaltyMinPoints] = useState<number>(100);
   const [loyaltyPointsValue, setLoyaltyPointsValue] = useState<number>(30.00);
   const [ticketResetPeriod, setTicketResetPeriod] = useState<'none' | 'weekly' | 'monthly'>('none');
-  const [deletionSecretCode, setDeletionSecretCode] = useState<string>('1234');
-  const [deletionBarcode, setDeletionBarcode] = useState<string>('ADMIN-DELETE');
+
 
 
   const [logoFile, setLogoFile] = useState<File | null>(null);
@@ -118,8 +126,6 @@ export default function ReceiptTemplateEditor() {
         setLoyaltyMinPoints(template.loyalty_min_points || 100);
         setLoyaltyPointsValue(template.loyalty_points_value || 30.00);
         setTicketResetPeriod(template.ticket_reset_period || 'none');
-        setDeletionSecretCode(template.deletion_secret_code || '1234');
-        setDeletionBarcode(template.deletion_barcode || 'ADMIN-DELETE');
         
         // Set existing logo path if available
         if (template.logo_url) {
@@ -223,8 +229,6 @@ export default function ReceiptTemplateEditor() {
       formData.append('loyalty_min_points', loyaltyMinPoints.toString());
       formData.append('loyalty_points_value', loyaltyPointsValue.toString());
       formData.append('ticket_reset_period', ticketResetPeriod);
-      formData.append('deletion_secret_code', deletionSecretCode);
-      formData.append('deletion_barcode', deletionBarcode);
       formData.append('logo_deleted', logoDeleted.toString());
 
       // Append logo file if selected
@@ -325,10 +329,6 @@ export default function ReceiptTemplateEditor() {
             onLoyaltyPointsValueChange={setLoyaltyPointsValue}
             ticketResetPeriod={ticketResetPeriod}
             onTicketResetPeriodChange={setTicketResetPeriod}
-            deletionSecretCode={deletionSecretCode}
-            onDeletionSecretCodeChange={setDeletionSecretCode}
-            deletionBarcode={deletionBarcode}
-            onDeletionBarcodeChange={setDeletionBarcode}
           />
 
 
@@ -464,10 +464,6 @@ const ReceiptContentFields: React.FC<{
   onLoyaltyPointsValueChange: (value: number) => void;
   ticketResetPeriod: 'none' | 'weekly' | 'monthly';
   onTicketResetPeriodChange: (value: 'none' | 'weekly' | 'monthly') => void;
-  deletionSecretCode: string;
-  onDeletionSecretCodeChange: (value: string) => void;
-  deletionBarcode: string;
-  onDeletionBarcodeChange: (value: string) => void;
 }> = ({ 
   receiptContent, 
   onChange, 
@@ -479,10 +475,6 @@ const ReceiptContentFields: React.FC<{
   onLoyaltyPointsValueChange,
   ticketResetPeriod,
   onTicketResetPeriodChange,
-  deletionSecretCode,
-  onDeletionSecretCodeChange,
-  deletionBarcode,
-  onDeletionBarcodeChange
 }) => (
   <div className="space-y-8">
     <div>
@@ -544,38 +536,6 @@ const ReceiptContentFields: React.FC<{
         <p className="text-sm text-gray-600 bg-blue-50 p-4 border-l-4 border-blue-400">
           💡 Configuration actuelle : Le client peut échanger {loyaltyMinPoints} points contre une remise de {loyaltyPointsValue.toFixed(3)} DT sur sa commande.
         </p>
-      </div>
-    </div>
-
-    <div>
-      <h2 className="text-xl font-semibold mb-4 text-red-600">Sécurité (Anti-Fraude)</h2>
-      <div className="space-y-4 p-4 bg-red-50 border-l-4 border-red-500 mb-8">
-        <div>
-          <label className="block text-sm font-medium mb-1">Code Secret de Suppression (Manuel)</label>
-          <input
-            type="text"
-            value={deletionSecretCode}
-            onChange={(e) => onDeletionSecretCodeChange(e.target.value)}
-            className="w-full border border-gray-300 px-3 py-4 text-sm focus:ring-1 focus:ring-red-500 focus:outline-none"
-            placeholder="Ex: 1234"
-          />
-          <p className="text-[10px] text-gray-500 mt-1 uppercase font-bold tracking-tighter">
-            Ce code sera demandé lors de la suppression d'un produit du panier.
-          </p>
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Code-Barres de Suppression (Scan)</label>
-          <input
-            type="text"
-            value={deletionBarcode}
-            onChange={(e) => onDeletionBarcodeChange(e.target.value)}
-            className="w-full border border-gray-300 px-3 py-4 text-sm focus:ring-1 focus:ring-red-500 focus:outline-none"
-            placeholder="Ex: ADMIN-DELETE"
-          />
-          <p className="text-[10px] text-gray-500 mt-1 uppercase font-bold tracking-tighter">
-            Scannez ce code-barres pour valider instantanément une suppression.
-          </p>
-        </div>
       </div>
     </div>
 

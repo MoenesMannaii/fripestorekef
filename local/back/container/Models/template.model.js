@@ -88,14 +88,6 @@ module.exports = (sequelize, DataTypes) => {
     last_ticket_reset: {
       type: DataTypes.DATE,
       allowNull: true
-    },
-    deletion_secret_code: {
-      type: DataTypes.STRING,
-      defaultValue: '1234'
-    },
-    deletion_barcode: {
-      type: DataTypes.STRING,
-      defaultValue: 'ADMIN-DELETE'
     }
   }, {
     tableName: 'templates',

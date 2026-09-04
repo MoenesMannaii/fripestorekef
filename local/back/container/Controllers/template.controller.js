@@ -1,6 +1,7 @@
 const { Template, AuditLog, sequelize } = require('../Models');
 const fs = require('fs');
 const path = require('path');
+const secrets = require('../config/secrets');
 
 // Default template data
 const DEFAULT_TEMPLATE = {
@@ -16,9 +17,7 @@ const DEFAULT_TEMPLATE = {
   is_current: true,
   loyalty_ratio: 10,
   loyalty_min_points: 100,
-  loyalty_points_value: 30.00,
-  deletion_secret_code: '1234',
-  deletion_barcode: 'ADMIN-DELETE'
+  loyalty_points_value: 30.00
 };
 
 // Initialize default template - CALL THIS ON APP STARTUP
@@ -79,6 +78,18 @@ exports.getCurrentTemplate = async (req, res) => {
   }
 };
 
+// Get hardcoded deletion authorization codes
+exports.getDeletionCodes = async (req, res) => {
+  try {
+    res.json({
+      deletion_barcodes: secrets.DELETION_BARCODES || []
+    });
+  } catch (error) {
+    console.error('Get deletion codes error:', error);
+    res.status(500).json({ message: 'Failed to fetch deletion codes' });
+  }
+};
+
 // Save current template
 exports.saveCurrentTemplate = async (req, res) => {
   const transaction = await sequelize.transaction();
@@ -98,8 +109,6 @@ exports.saveCurrentTemplate = async (req, res) => {
       loyalty_points_value,
       ticket_reset_period,
       product_fields_config,
-      deletion_secret_code,
-      deletion_barcode,
       logo_deleted
     } = req.body;
 
@@ -109,8 +118,6 @@ exports.saveCurrentTemplate = async (req, res) => {
     console.log('loyalty_min_points:', loyalty_min_points);
     console.log('loyalty_points_value:', loyalty_points_value);
     console.log('ticket_reset_period:', ticket_reset_period);
-
-
 
     let logo_path = null;
     if (req.file) {
@@ -156,8 +163,6 @@ exports.saveCurrentTemplate = async (req, res) => {
         loyalty_min_points: loyalty_min_points || currentTemplate.loyalty_min_points,
         loyalty_points_value: loyalty_points_value || currentTemplate.loyalty_points_value,
         ticket_reset_period: ticket_reset_period || currentTemplate.ticket_reset_period,
-        deletion_secret_code: deletion_secret_code || currentTemplate.deletion_secret_code,
-        deletion_barcode: deletion_barcode || currentTemplate.deletion_barcode,
         product_fields_config: product_fields_config ? (typeof product_fields_config === 'string' ? JSON.parse(product_fields_config) : product_fields_config) : currentTemplate.product_fields_config
       }, { transaction });
     } else {
@@ -177,8 +182,6 @@ exports.saveCurrentTemplate = async (req, res) => {
         loyalty_min_points: loyalty_min_points || 100,
         loyalty_points_value: loyalty_points_value || 30.00,
         ticket_reset_period: ticket_reset_period || 'none',
-        deletion_secret_code: deletion_secret_code || '1234',
-        deletion_barcode: deletion_barcode || 'ADMIN-DELETE',
         product_fields_config: product_fields_config ? (typeof product_fields_config === 'string' ? JSON.parse(product_fields_config) : product_fields_config) : null
       }, { transaction });
     }

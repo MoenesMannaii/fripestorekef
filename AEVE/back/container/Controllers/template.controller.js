@@ -17,8 +17,6 @@ const DEFAULT_TEMPLATE = {
   loyalty_ratio: 10,
   loyalty_min_points: 100,
   loyalty_points_value: 30.00,
-  deletion_secret_code: '1234',
-  deletion_barcode: 'ADMIN-DELETE'
 };
 
 // Initialize default template - CALL THIS ON APP STARTUP
@@ -98,8 +96,6 @@ exports.saveCurrentTemplate = async (req, res) => {
       loyalty_points_value,
       ticket_reset_period,
       product_fields_config,
-      deletion_secret_code,
-      deletion_barcode,
       logo_deleted
     } = req.body;
 
@@ -156,8 +152,6 @@ exports.saveCurrentTemplate = async (req, res) => {
         loyalty_min_points: loyalty_min_points || currentTemplate.loyalty_min_points,
         loyalty_points_value: loyalty_points_value || currentTemplate.loyalty_points_value,
         ticket_reset_period: ticket_reset_period || currentTemplate.ticket_reset_period,
-        deletion_secret_code: deletion_secret_code || currentTemplate.deletion_secret_code,
-        deletion_barcode: deletion_barcode || currentTemplate.deletion_barcode,
         product_fields_config: product_fields_config ? (typeof product_fields_config === 'string' ? JSON.parse(product_fields_config) : product_fields_config) : currentTemplate.product_fields_config
       }, { transaction });
     } else {
@@ -177,8 +171,6 @@ exports.saveCurrentTemplate = async (req, res) => {
         loyalty_min_points: loyalty_min_points || 100,
         loyalty_points_value: loyalty_points_value || 30.00,
         ticket_reset_period: ticket_reset_period || 'none',
-        deletion_secret_code: deletion_secret_code || '1234',
-        deletion_barcode: deletion_barcode || 'ADMIN-DELETE',
         product_fields_config: product_fields_config ? (typeof product_fields_config === 'string' ? JSON.parse(product_fields_config) : product_fields_config) : null
       }, { transaction });
     }

@@ -57,7 +57,7 @@ function createMainWindow() {
     minWidth: 900,
     minHeight: 600,
     show: false,
-    title: 'FripeStore POS',
+    title: 'AEVE - Logiciel Point de vente Intelligent',
     icon: path.join(__dirname, 'assets', 'icon.ico'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -98,14 +98,16 @@ function startBackend() {
       _DB_OVERRIDE: dbPath,
       UPLOADS_PATH: uploadsPath,
       PORT: String(BACKEND_PORT),
-      ELECTRON_APP: '1'
+      ELECTRON_APP: '1',
+      RESOURCES_PATH: process.resourcesPath
     };
 
     // spawn uses the SYSTEM or BUNDLED node.exe — native modules work as-is
     backendProcess = spawn(nodeBin, [backendIndex], {
       cwd: backendPath,
       env,
-      stdio: ['ignore', 'pipe', 'pipe']
+      stdio: ['ignore', 'pipe', 'pipe'],
+      windowsHide: true
     });
 
     backendProcess.stdout.on('data', (data) => {

@@ -124,6 +124,31 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     refreshAuth();
   }, []); // Run ONLY once on mount
 
+  // 🔄 Re-validate when localStorage changes (e.g. admin switches account/role)
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'authToken' || e.key === 'user') {
+        console.log('🔄 AuthContext - localStorage changed, re-validating auth...');
+        refreshAuth();
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        console.log('🔄 AuthContext - tab became visible, re-validating auth...');
+        refreshAuth();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [refreshAuth]);
+
   return (
     <AuthContext.Provider value={{ 
       user, 

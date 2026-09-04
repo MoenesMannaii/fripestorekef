@@ -53,6 +53,7 @@ export default function OrderPanel({ cartItems, onCartUpdate, onCheckoutSuccess,
   const [itemToDelete, setItemToDelete] = useState<CartItem | null>(null);
   const [deleteInputValue, setDeleteInputValue] = useState("");
   const [templateConfig, setTemplateConfig] = useState<any>(null);
+  const [deletionCodes, setDeletionCodes] = useState<string[]>([]);
 
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
@@ -94,29 +95,50 @@ export default function OrderPanel({ cartItems, onCartUpdate, onCheckoutSuccess,
       }
     };
     fetchConfig();
+
+    // Fetch hardcoded deletion codes separately
+    const fetchDeletionCodes = async () => {
+      try {
+        const token = localStorage.getItem('authToken');
+        const res = await fetch('http://localhost:4000/api/templates/deletion-codes', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setDeletionCodes(Array.isArray(data.deletion_barcodes) ? data.deletion_barcodes : []);
+        } else {
+          setDeletionCodes(['DEL-8920491823', 'DEL-3104928174', 'DEL-7592018402', 'DEL-1849204739', 'DEL-6392048152', 'DEL-4028491038', 'DEL-9182047361', 'DEL-5204918374', 'DEL-2849103857', 'DEL-7392048165']);
+        }
+      } catch (err) {
+        console.error("Failed to fetch deletion codes", err);
+        setDeletionCodes(['DEL-8920491823', 'DEL-3104928174', 'DEL-7592018402', 'DEL-1849204739', 'DEL-6392048152', 'DEL-4028491038', 'DEL-9182047361', 'DEL-5204918374', 'DEL-2849103857', 'DEL-7392048165']);
+      }
+    };
+    fetchDeletionCodes();
   }, []);
 
-  // Update current time every second
+  // Auto focus delete input when modal opens
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
-
-
-
-  // Focus barcode input when shown
-  useEffect(() => {
-    if (showBarcodeInput && barcodeInputRef.current) {
-      barcodeInputRef.current.focus();
+    if (isDeleteModalOpen) {
+      setDeleteInputValue("");
+      const timer = setTimeout(() => {
+        barcodeInputRef.current?.focus();
+      }, 50);
+      return () => clearTimeout(timer);
     }
-  }, [showBarcodeInput]);
+  }, [isDeleteModalOpen]);
 
   // Handle barcode scanner input (pistol scanner acts as keyboard)
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      if (isDeleteModalOpen) {
+        if (event.key === 'Enter') {
+          handleConfirmDelete(deleteInputValue || scannedBarcode);
+          setScannedBarcode("");
+        }
+        return;
+      }
+
       // Ignore if user is typing in barcode input manually
       if (document.activeElement === barcodeInputRef.current) {
         return;
@@ -124,15 +146,10 @@ export default function OrderPanel({ cartItems, onCartUpdate, onCheckoutSuccess,
 
       // Scanner typically sends characters quickly, we can detect by timing or Enter key
       if (event.key === 'Enter' && scannedBarcode) {
-        // Scanner finished
-        if (isDeleteModalOpen) {
-          handleConfirmDelete(scannedBarcode);
-        } else {
-          handleBarcodeScanned(scannedBarcode);
-        }
+        handleBarcodeScanned(scannedBarcode);
         setScannedBarcode("");
-      } else if (event.key.length === 1 && /[0-9a-zA-Z]/.test(event.key)) {
-        // Accumulate barcode characters
+      } else if (event.key.length === 1 && /[0-9a-zA-Z-]/.test(event.key)) {
+        // Accumulate barcode characters (including hyphens)
         setScannedBarcode(prev => prev + event.key);
       }
     };
@@ -141,7 +158,7 @@ export default function OrderPanel({ cartItems, onCartUpdate, onCheckoutSuccess,
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [scannedBarcode, isDeleteModalOpen]);
+  }, [scannedBarcode, isDeleteModalOpen, deleteInputValue]);
 
   // Auto-clear scanned barcode after a delay (if no Enter received)
   useEffect(() => {
@@ -321,9 +338,22 @@ export default function OrderPanel({ cartItems, onCartUpdate, onCheckoutSuccess,
   };
 
   const handleConfirmDelete = async (codeValue: string) => {
-    if (!itemToDelete || !templateConfig) return;
+    if (!itemToDelete) return;
 
-    if (codeValue === templateConfig.deletion_secret_code || codeValue === templateConfig.deletion_barcode) {
+    const trimmedCode = (codeValue || "").trim();
+
+    const barcodes = deletionCodes && deletionCodes.length > 0 
+      ? deletionCodes 
+      : ['DEL-8920491823', 'DEL-3104928174', 'DEL-7592018402', 'DEL-1849204739', 'DEL-6392048152', 'DEL-4028491038', 'DEL-9182047361', 'DEL-5204918374', 'DEL-2849103857', 'DEL-7392048165'];
+
+    const validCodes = barcodes.filter(Boolean).map(c => c.trim());
+
+    console.log("🔍 Attempting deletion validation...");
+    console.log("👉 Input code received:", `"${trimmedCode}"`);
+    console.log("📋 Acceptable valid codes:", validCodes);
+    console.log("✅ Code matches?:", validCodes.includes(trimmedCode));
+
+    if (validCodes.includes(trimmedCode)) {
       // Log the deletion
       try {
         const token = localStorage.getItem('authToken');
@@ -458,48 +488,56 @@ export default function OrderPanel({ cartItems, onCartUpdate, onCheckoutSuccess,
 
       {/* Deletion Confirmation Modal */}
       {isDeleteModalOpen && (
-        <div className="absolute inset-0 z-50 bg-white/95 flex flex-col items-center justify-center p-6 border-2 border-red-600 animate-in fade-in zoom-in duration-200">
+        <div
+          className="absolute inset-0 z-50 bg-white/95 flex flex-col items-center justify-center p-6 border-2 border-red-600 animate-in fade-in zoom-in duration-200"
+          onClick={() => barcodeInputRef.current?.focus()}
+        >
+          {/* Hidden silent input — captures keyboard input without showing anything, auto-fill disabled */}
+          <input
+            ref={barcodeInputRef}
+            autoFocus
+            type="text"
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck="false"
+            data-lpignore="true"
+            data-form-type="other"
+            value={deleteInputValue}
+            onChange={(e) => {
+              console.log("⌨️ Typing detected in delete modal:", e.target.value);
+              setDeleteInputValue(e.target.value);
+            }}
+            onKeyDown={(e) => {
+              console.log("🔑 Key pressed in delete modal:", e.key);
+              if (e.key === 'Enter') handleConfirmDelete(deleteInputValue || scannedBarcode);
+              if (e.key === 'Escape') setIsDeleteModalOpen(false);
+            }}
+            className="absolute opacity-0 w-1 h-1 top-0 left-0 pointer-events-none"
+          />
+
           <div className="w-full max-w-sm text-center">
             <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
               <Trash2 size={32} />
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">Confirmation Requise</h3>
             <p className="text-sm text-gray-600 mb-6">
-              Veuillez saisir le code secret ou scanner le code-barres administrateur pour supprimer <span className="font-bold text-red-600 inline">"{itemToDelete?.name}"</span>.
+              Veuillez scanner le code-barres administrateur pour supprimer <span className="font-bold text-red-600 inline">"{itemToDelete?.name}"</span>.
             </p>
-            
-            <div className="space-y-4">
-              <input
-                autoFocus
-                type="password"
-                value={deleteInputValue}
-                onChange={(e) => setDeleteInputValue(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleConfirmDelete(deleteInputValue);
-                  if (e.key === 'Escape') setIsDeleteModalOpen(false);
-                }}
-                className="w-full border-2 border-red-600 px-4 py-4 text-center text-xl font-bold tracking-widest focus:outline-none bg-red-50"
-                placeholder="****"
-              />
-              
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setIsDeleteModalOpen(false)}
-                  className="flex-1 py-4 bg-gray-200 text-gray-800 font-bold hover:bg-gray-300"
-                >
-                  ANNULER
-                </button>
-                <button
-                  onClick={() => handleConfirmDelete(deleteInputValue)}
-                  className="flex-1 py-4 bg-red-600 text-white font-bold hover:bg-red-700"
-                >
-                  VALIDER
-                </button>
-              </div>
-            </div>
-            
-            <div className="mt-6 flex items-center justify-center gap-2 text-xs text-gray-400 font-bold uppercase">
-              <Barcode size={16} /> En attente de scan...
+
+            <div className="flex gap-3">
+              <button
+                onClick={(e) => { e.stopPropagation(); setIsDeleteModalOpen(false); }}
+                className="flex-1 py-4 bg-gray-200 text-gray-800 font-bold hover:bg-gray-300"
+              >
+                ANNULER
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); handleConfirmDelete(deleteInputValue || scannedBarcode); }}
+                className="flex-1 py-4 bg-red-600 text-white font-bold hover:bg-red-700"
+              >
+                SUPPRIMER
+              </button>
             </div>
           </div>
         </div>

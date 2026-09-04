@@ -11,7 +11,7 @@ router.post('/print-sales-report', printController.printSalesReport);
 // NEW: Print audit logs report (remboursements + suppressions)
 router.post('/print-audit-logs', printController.printAuditLogs);
 
-// NEW: Manual / programmatic trigger for cash drawer
+// NEW: Manual / programmatic trigger for Pawer
 router.post('/open-drawer', async (req, res) => {
   try {
     const success = await printController.openDrawer();
