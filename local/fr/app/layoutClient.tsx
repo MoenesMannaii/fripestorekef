@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, useLayoutEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Navbar from "../constants/Navbar";
 import { AlertProvider } from "../components/AlertContext";
@@ -43,7 +43,6 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
 
   // 🔄 Trigger backend auto-update (with debounce)
   const triggerAutoUpdate = useCallback(async (force: boolean = false): Promise<boolean> => {
-    // Prevent concurrent updates
     if (isUpdatingRef.current) {
       console.log('⏳ Update already in progress, skipping...');
       return false;
@@ -70,7 +69,6 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
       const result = await response.json();
       console.log('✅ Auto-update successful:', result);
       
-      // Update state + localStorage
       const currentTime = Date.now();
       setLastUpdateTime(currentTime);
       localStorage.setItem('lastupdate', currentTime.toString());
@@ -106,9 +104,8 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
       setUpdateStatus('checking');
       const storedLastUpdate = localStorage.getItem('lastupdate');
       const currentTime = Date.now();
-      const FIVE_MINUTES_MS = 300000; // 5 minutes
+      const FIVE_MINUTES_MS = 300000;
       
-      // Update needed if: no timestamp OR last update > 5 minutes ago
       if (!storedLastUpdate || (currentTime - parseInt(storedLastUpdate)) > FIVE_MINUTES_MS) {
         console.log(`🕐 Update needed | Last: ${storedLastUpdate ? new Date(parseInt(storedLastUpdate)).toLocaleTimeString('fr-TN') : 'never'}`);
         await triggerAutoUpdate();
@@ -124,27 +121,26 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
     }
   }, [triggerAutoUpdate, updateStatus]);
 
-  // 🚀 Manual refresh handler (bypasses 5-min check)
+  // 🚀 Manual refresh handler
   const handleManualRefresh = useCallback(async () => {
     if (updateStatus === 'updating') return;
     
-    // Optimistic UI: show "refreshing" immediately
     setUpdateStatus('updating');
     setUpdateMessage('Actualisation...');
     
-    const success = await triggerAutoUpdate(true); // force=true
+    const success = await triggerAutoUpdate(true);
     
     if (success) {
-      // Optional: trigger a page-wide data refresh if you use SWR/React Query
-      // mutate?.(); // Uncomment if using react-query/swr
+      // Refresh user data after successful update
+      await refreshShift();
     }
-  }, [triggerAutoUpdate, updateStatus]);
+  }, [triggerAutoUpdate, updateStatus, refreshShift]);
 
-  // 🔌 Check if auto-update endpoint is available (graceful degradation)
+  // 🔌 Check if auto-update endpoint is available
   const checkAutoUpdateAvailability = useCallback(async () => {
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 3000); // 3s timeout
+      const timeout = setTimeout(() => controller.abort(), 3000);
       
       const response = await fetch('http://localhost:4000/api/database/check-auto-update', {
         signal: controller.signal,
@@ -171,19 +167,19 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
 
   // ⚙️ Setup background sync interval
   useEffect(() => {
-    /* Auto-update disabled as requested
-    checkAutoUpdateAvailability();
-    checkAndUpdateDatabase(); // Initial check
-    
-    // Background check every 60 seconds
-    intervalRef.current = setInterval(checkAndUpdateDatabase, 60000);
-    */
+    /* Auto-update disabled as requested */
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [checkAutoUpdateAvailability, checkAndUpdateDatabase]);
+  }, []);
 
-  // Shift Session Logic moved to context, but keep handlers here for UI
+  // 📊 Debug: Log userRole changes
+  useEffect(() => {
+    console.log('🔄 LayoutClient - userRole changed:', userRole);
+    console.log('🔄 LayoutClient - current path:', pathname);
+  }, [userRole, pathname]);
+
+  // Shift Session Logic
   const handleClockIn = async (startingCash: number) => {
     try {
       const token = localStorage.getItem('authToken');
@@ -193,7 +189,7 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
       );
       
       if (response.data.success) {
-        await refreshShift(); // Refresh global shift state
+        await refreshShift();
         setIsClockInOpen(false);
       }
     } catch (error: any) {
@@ -210,7 +206,7 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
       );
       
       if (response.data.success) {
-        await refreshShift(); // Refresh global shift state
+        await refreshShift();
         setIsClockOutOpen(false);
       }
     } catch (error: any) {
@@ -218,7 +214,7 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
     }
   };
 
-  // 🔐 Device Control Logic (Keep this separate but optimize)
+  // 🔐 Device Control Logic
   useEffect(() => {
     const checkDevice = async () => {
       try {
@@ -245,25 +241,42 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
     }
   }, [pathname, router, hideNavbar]);
   
-  // 🚫 Route protection for workers
-  useEffect(() => {
-    if (userRole === "worker" && (pathname.includes("/gestion")
-      || pathname.includes("/parametres") 
-      || pathname.includes("/credit") 
-      || pathname.includes("/ia"))) {
+  // 🚫 ROUTE PROTECTION - FIXED: Using useLayoutEffect for immediate redirect
+  useLayoutEffect(() => {
+    // Skip protection for auth/setup pages
+    if (hideNavbar) return;
+    
+    // Skip if userRole is not loaded yet
+    if (!userRole) return;
+    
+    // Restricted routes for workers
+    const restrictedPaths = [
+      "/gestion",
+      "/parametres", 
+      "/credit",
+      "/ia",
+      "/rapports"
+    ];
+    
+    const isRestricted = restrictedPaths.some(path => pathname.includes(path));
+    
+    console.log(`🔐 Route protection check: userRole=${userRole}, path=${pathname}, restricted=${isRestricted}`);
+    
+    if (userRole === "worker" && isRestricted) {
+      console.log("🚫 Worker trying to access restricted route - redirecting to /403");
       router.replace("/403");
     }
-  }, [pathname, userRole, router]);
+  }, [pathname, userRole, router, hideNavbar]);
 
   // 🚫 Route protection for Store template
-  useEffect(() => {
+  useLayoutEffect(() => {
     const template = localStorage.getItem("templateMode");
     if (template === "store" && pathname.includes("/repartition")) {
       router.replace("/");
     }
   }, [pathname, router]);
 
-  // 🎨 Loading State (Static)
+  // 🎨 Loading State
   if (!hideNavbar && isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50 uppercase">
@@ -283,7 +296,7 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
             onOpenClockOut={() => setIsClockOutOpen(true)}
           />
           
-          {/* 🔄 Sync Status Bar - Appears below Navbar when active */}
+          {/* 🔄 Sync Status Bar */}
           {updateStatus !== 'idle' && !hideNavbar && (
             <div className={`sticky top-16 z-30 ${
               updateStatus === 'error' ? 'bg-red-50 border-red-200' :
@@ -292,7 +305,6 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
             } border-b px-4 py-2.5`}>
               <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2.5 min-w-0">
-                  {/* Status Icon */}
                   <span className={`shrink-0 p-1.5 rounded-full ${
                     updateStatus === 'updating' ? 'bg-gray-100 text-gray-600' :
                     updateStatus === 'success' ? 'bg-green-100 text-green-600' :
@@ -308,7 +320,6 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
                     )}
                   </span>
                   
-                  {/* Status Message */}
                   <p className={`text-sm font-medium truncate ${
                     updateStatus === 'error' ? 'text-red-800' :
                     updateStatus === 'success' ? 'text-green-800' :
@@ -318,13 +329,12 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
                   </p>
                 </div>
                 
-                {/* Auto-hide close button for manual dismiss */}
                 <button
                   onClick={() => {
                     setUpdateStatus('idle');
                     setUpdateMessage('');
                   }}
-                  className="shrink-0 text-gray-400 hover:text-gray-600  p-1"
+                  className="shrink-0 text-gray-400 hover:text-gray-600 p-1"
                   aria-label="Fermer"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

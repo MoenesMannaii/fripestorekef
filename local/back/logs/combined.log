@@ -1,0 +1,4 @@
+{"level":"warn","message":"FAILED_LOGIN: Incorrect password for user 7 from ::ffff:127.0.0.1","service":"offline-pos-backend","timestamp":"2026-09-04 09:56:45"}
+{"level":"warn","message":"FAILED_LOGIN: Incorrect password for user 7 from ::ffff:127.0.0.1","service":"offline-pos-backend","timestamp":"2026-09-04 09:56:50"}
+{"level":"warn","message":"FAILED_LOGIN: Incorrect password for user 7 from ::ffff:127.0.0.1","service":"offline-pos-backend","timestamp":"2026-09-04 09:57:22"}
+{"level":"warn","message":"FAILED_LOGIN: Attempt for non-existent email - iheb@gmail.com from ::ffff:127.0.0.1","service":"offline-pos-backend","timestamp":"2026-09-04 10:19:08"}
