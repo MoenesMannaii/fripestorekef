@@ -153,26 +153,32 @@ const Navbar: React.FC<{
           <Link href="/" className={getLinkStyles("/")} prefetch={false}>
             Ventes
           </Link>
-          <Link href="/gestion" className={getLinkStyles("/gestion")} prefetch={false}>
-            Gestion
-          </Link>
-          <Link href="/rapports" className={getLinkStyles("/rapports")} prefetch={false}>
-            Rapports
-          </Link>
-          <Link href="/ia" className={getLinkStyles("/ia")} prefetch={false}>
-            Insights IA
-          </Link>
-          <Link href="/credit" className={getLinkStyles("/credit")} prefetch={false}>
-            Crédit
-          </Link>
+          {user?.role !== 'worker' && (
+            <>
+              <Link href="/gestion" className={getLinkStyles("/gestion")} prefetch={false}>
+                Gestion
+              </Link>
+              <Link href="/rapports" className={getLinkStyles("/rapports")} prefetch={false}>
+                Rapports
+              </Link>
+              <Link href="/ia" className={getLinkStyles("/ia")} prefetch={false}>
+                Insights IA
+              </Link>
+              <Link href="/credit" className={getLinkStyles("/credit")} prefetch={false}>
+                Crédit
+              </Link>
+            </>
+          )}
           {templateMode !== "store" && (
             <Link href="/repartition" className={getLinkStyles("/repartition")} prefetch={false}>
               Répartition
             </Link>
           )}
-          <Link href="/parametres" className={getLinkStyles("/parametres")} prefetch={false}>
-            Paramètres
-          </Link>
+          {user?.role !== 'worker' && (
+            <Link href="/parametres" className={getLinkStyles("/parametres")} prefetch={false}>
+              Paramètres
+            </Link>
+          )}
           {user?.role === 'admin' && (
             <Link href="/gestion/logs" className={getLinkStyles("/gestion/logs")} prefetch={false}>
               Logs
@@ -319,14 +325,16 @@ const Navbar: React.FC<{
                   <User className="w-4 h-4 text-gray-400" />
                   Mon Profil
                 </Link>
-                <Link
-                  href="/parametres"
-                  className="flex items-center gap-3 px-5 py-4 text-sm text-gray-700 hover:bg-gray-50 border-b border-gray-100"
-                  prefetch={false}
-                >
-                  <Package className="w-4 h-4 text-gray-400" />
-                  Configuration
-                </Link>
+                {user?.role !== 'worker' && (
+                  <Link
+                    href="/parametres"
+                    className="flex items-center gap-3 px-5 py-4 text-sm text-gray-700 hover:bg-gray-50 border-b border-gray-100"
+                    prefetch={false}
+                  >
+                    <Package className="w-4 h-4 text-gray-400" />
+                    Configuration
+                  </Link>
+                )}
                 <button
                   onClick={logout}
                   className="flex items-center gap-3 w-full text-left px-5 py-4 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600"
@@ -360,38 +368,42 @@ const Navbar: React.FC<{
             >
               Accueil / Ventes
             </Link>
-            <Link
-              href="/gestion"
-              className={`px-6 py-5 text-base border-t border-gray-100 ${isActiveLink("/gestion") ? "bg-gray-50 text-gray-900 font-bold border-l-4 border-gray-900" : "text-gray-600 font-medium"}`}
-              onClick={() => setOpen(false)}
-              prefetch={false}
-            >
-              Gestion de produits
-            </Link>
-            <Link
-              href="/rapports"
-              className={`px-6 py-5 text-base border-t border-gray-100 ${isActiveLink("/rapports") ? "bg-gray-50 text-gray-900 font-bold border-l-4 border-gray-900" : "text-gray-600 font-medium"}`}
-              onClick={() => setOpen(false)}
-              prefetch={false}
-            >
-              Rapports
-            </Link>
-            <Link
-              href="/ia"
-              className={`px-6 py-5 text-base border-t border-gray-100 ${isActiveLink("/ia") ? "bg-purple-50 text-purple-700 font-bold border-l-4 border-purple-600" : "text-purple-600 font-medium"}`}
-              onClick={() => setOpen(false)}
-              prefetch={false}
-            >
-              Insights IA ✨
-            </Link>
-            <Link
-              href="/credit"
-              className={`px-6 py-5 text-base border-t border-gray-100 ${isActiveLink("/credit") ? "bg-gray-50 text-gray-900 font-bold border-l-4 border-gray-900" : "text-gray-600 font-medium"}`}
-              onClick={() => setOpen(false)}
-              prefetch={false}
-            >
-              Crédit
-            </Link>
+            {user?.role !== 'worker' && (
+              <>
+                <Link
+                  href="/gestion"
+                  className={`px-6 py-5 text-base border-t border-gray-100 ${isActiveLink("/gestion") ? "bg-gray-50 text-gray-900 font-bold border-l-4 border-gray-900" : "text-gray-600 font-medium"}`}
+                  onClick={() => setOpen(false)}
+                  prefetch={false}
+                >
+                  Gestion de produits
+                </Link>
+                <Link
+                  href="/rapports"
+                  className={`px-6 py-5 text-base border-t border-gray-100 ${isActiveLink("/rapports") ? "bg-gray-50 text-gray-900 font-bold border-l-4 border-gray-900" : "text-gray-600 font-medium"}`}
+                  onClick={() => setOpen(false)}
+                  prefetch={false}
+                >
+                  Rapports
+                </Link>
+                <Link
+                  href="/ia"
+                  className={`px-6 py-5 text-base border-t border-gray-100 ${isActiveLink("/ia") ? "bg-purple-50 text-purple-700 font-bold border-l-4 border-purple-600" : "text-purple-600 font-medium"}`}
+                  onClick={() => setOpen(false)}
+                  prefetch={false}
+                >
+                  Insights IA ✨
+                </Link>
+                <Link
+                  href="/credit"
+                  className={`px-6 py-5 text-base border-t border-gray-100 ${isActiveLink("/credit") ? "bg-gray-50 text-gray-900 font-bold border-l-4 border-gray-900" : "text-gray-600 font-medium"}`}
+                  onClick={() => setOpen(false)}
+                  prefetch={false}
+                >
+                  Crédit
+                </Link>
+              </>
+            )}
             {templateMode !== "store" && (
               <Link
                 href="/repartition"
@@ -402,14 +414,16 @@ const Navbar: React.FC<{
                 Répartition
               </Link>
             )}
-            <Link
-              href="/parametres"
-              className={`px-6 py-5 text-base border-t border-gray-100 ${isActiveLink("/parametres") ? "bg-gray-50 text-gray-900 font-bold border-l-4 border-gray-900" : "text-gray-600 font-medium"}`}
-              onClick={() => setOpen(false)}
-              prefetch={false}
-            >
-              Paramètres
-            </Link>
+            {user?.role !== 'worker' && (
+              <Link
+                href="/parametres"
+                className={`px-6 py-5 text-base border-t border-gray-100 ${isActiveLink("/parametres") ? "bg-gray-50 text-gray-900 font-bold border-l-4 border-gray-900" : "text-gray-600 font-medium"}`}
+                onClick={() => setOpen(false)}
+                prefetch={false}
+              >
+                Paramètres
+              </Link>
+            )}
             {user?.role === 'admin' && (
               <Link
                 href="/gestion/logs"

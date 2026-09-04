@@ -10,6 +10,14 @@ import ClockInModal from "../components/Shift/ClockInModal";
 import ClockOutModal from "../components/Shift/ClockOutModal";
 import { useAuth } from "../lib/contexts/AuthContext";
 
+const RESTRICTED_PATHS = [
+  "/gestion",
+  "/parametres", 
+  "/credit",
+  "/ia",
+  "/rapports"
+];
+
 export default function LayoutClient({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -249,16 +257,7 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
     // Skip if userRole is not loaded yet
     if (!userRole) return;
     
-    // Restricted routes for workers
-    const restrictedPaths = [
-      "/gestion",
-      "/parametres", 
-      "/credit",
-      "/ia",
-      "/rapports"
-    ];
-    
-    const isRestricted = restrictedPaths.some(path => pathname.includes(path));
+    const isRestricted = RESTRICTED_PATHS.some(path => pathname.includes(path));
     
     console.log(`🔐 Route protection check: userRole=${userRole}, path=${pathname}, restricted=${isRestricted}`);
     
@@ -275,13 +274,18 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
       router.replace("/");
     }
   }, [pathname, router]);
+  
+  const isRestricted = RESTRICTED_PATHS.some(path => pathname.includes(path));
+  const isWorkerAndRestricted = userRole === "worker" && isRestricted;
 
   // 🎨 Loading State
-  if (!hideNavbar && isLoading) {
+  if (!hideNavbar && (isLoading || isWorkerAndRestricted)) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50 uppercase">
         <div className="text-center font-black">
-          <p className="text-gray-900 border-2 border-gray-900 px-6 py-4">Session...</p>
+          <p className="text-gray-900 border-2 border-gray-900 px-6 py-4">
+            {isWorkerAndRestricted ? "Redirection..." : "Session..."}
+          </p>
         </div>
       </div>
     );

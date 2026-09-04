@@ -19,6 +19,7 @@ import {
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import Image from "next/image";
 import aevelogo from "../../../assets/aeve_logo.png";
+import { useAuth } from "../../../lib/contexts/AuthContext";
 
 interface Worker {
   id: number;
@@ -30,6 +31,7 @@ interface Worker {
 
 const LoginPage: FC = () => {
   const router = useRouter();
+  const { refreshAuth } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -122,6 +124,7 @@ const LoginPage: FC = () => {
       localStorage.setItem("userName", user.name);
       localStorage.setItem("userRole", user.role);
       
+      await refreshAuth();
       router.push("/");
     } catch (err: any) {
       if (err.response?.status === 401) {
@@ -148,6 +151,8 @@ const LoginPage: FC = () => {
       localStorage.setItem("authToken", token);
       localStorage.setItem("userName", user.name);
       localStorage.setItem("userRole", user.role);
+      
+      await refreshAuth();
       router.push("/");
     } catch (err: any) {
       if (err.response?.status === 401) {
